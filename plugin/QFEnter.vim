@@ -1,5 +1,5 @@
 " File:         plugin/QFEnter.vim
-" Description:  A vim plugin for more intuitive file opening in Quickfix window.
+" Description:  A vim plugin for intuitive file opening from Quickfix window.
 " Author:       yssl <http://github.com/yssl>
 " License:      MIT License
 
@@ -24,20 +24,25 @@ if !exists('g:qfenter_hopen_map')
 	let g:qfenter_hopen_map = ['<Leader><Space>']
 endif
 
+if !exists('g:qfenter_ttopen_map')
+	let g:qfenter_ttopen_map = ['<Leader><Tab><Tab>']
+endif
+
 if !exists('g:qfenter_cc_cmd')
-	let g:qfenter_cc_cmd = '#cc'
+	let g:qfenter_cc_cmd = '##cc'
 endif
 
 " autocmd
 augroup QFEnterAutoCmds
 	autocmd!
-	autocmd FileType qf call s:RegisterMapping(g:qfenter_open_map, 'QFEnter#OpenQFItemAtPrevWin')
-	autocmd FileType qf call s:RegisterMapping(g:qfenter_vopen_map, 'QFEnter#VOpenQFItemAtPrevWin')
-	autocmd FileType qf call s:RegisterMapping(g:qfenter_hopen_map, 'QFEnter#HOpenQFItemAtPrevWin')
+	autocmd FileType qf call s:RegisterMapping(g:qfenter_open_map, 'QFEnter#OpenQFItem')
+	autocmd FileType qf call s:RegisterMapping(g:qfenter_vopen_map, 'QFEnter#VOpenQFItem')
+	autocmd FileType qf call s:RegisterMapping(g:qfenter_hopen_map, 'QFEnter#HOpenQFItem')
+	autocmd FileType qf call s:RegisterMapping(g:qfenter_ttopen_map, 'QFEnter#TTOpenQFItem')
 augroup END
 
 " functions
-function s:RegisterMapping(keymap, funcname)
+function! s:RegisterMapping(keymap, funcname)
 	for key in a:keymap
 		execute 'nnoremap <buffer> '.key.' :call '.a:funcname.'()<CR>'
 	endfor

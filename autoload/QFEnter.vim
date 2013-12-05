@@ -1,29 +1,36 @@
 " File:         autoload/QFEnter.vim
-" Description:  A vim plugin for more intuitive file opening in Quickfix window.
+" Description:  A vim plugin for intuitive file opening from Quickfix window.
 " Author:       yssl <http://github.com/yssl>
 " License:      MIT License
 
 " functions
-function! QFEnter#OpenQFItemAtPrevWin()
+function! QFEnter#OpenQFItem()
 	let lnumqf = line('.')
 	execute 'wincmd p'
-	let cc_cmd = substitute(g:qfenter_cc_cmd, '#', lnumqf, "")
+	let cc_cmd = substitute(g:qfenter_cc_cmd, '##', lnumqf, "")
 	execute cc_cmd
 endfunction
 
-function! QFEnter#VOpenQFItemAtPrevWin()
+function! QFEnter#VOpenQFItem()
 	let lnumqf = line('.')
 	execute 'wincmd p'
 	execute 'vnew'
-	let cc_cmd = substitute(g:qfenter_cc_cmd, '#', lnumqf, "")
+	let cc_cmd = substitute(g:qfenter_cc_cmd, '##', lnumqf, "")
 	execute cc_cmd
 endfunction
 
-function! QFEnter#HOpenQFItemAtPrevWin()
+function! QFEnter#HOpenQFItem()
 	let lnumqf = line('.')
 	execute 'wincmd p'
 	execute 'new'
-	let cc_cmd = substitute(g:qfenter_cc_cmd, '#', lnumqf, "")
+	let cc_cmd = substitute(g:qfenter_cc_cmd, '##', lnumqf, "")
+	execute cc_cmd
+endfunction
+
+function! QFEnter#TTOpenQFItem()
+	let lnumqf = line('.')
+	execute 'tabnew'
+	let cc_cmd = substitute(g:qfenter_cc_cmd, '##', lnumqf, "")
 	execute cc_cmd
 endfunction
 
