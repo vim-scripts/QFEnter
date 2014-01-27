@@ -9,55 +9,94 @@ function! s:ExecuteCC(lnumqf)
 	execute cc_cmd
 endfunction
 
-function! QFEnter#OpenQFItem()
-	let lnumqf = line('.')
-	wincmd p
-	call s:ExecuteCC(lnumqf)
+function! s:ExecuteCN(count)
+	let cn_cmd = g:qfenter_cn_cmd
+	execute cn_cmd
 endfunction
 
-function! QFEnter#VOpenQFItem()
-	let lnumqf = line('.')
-	wincmd p
-	vnew
-	call s:ExecuteCC(lnumqf)
+function! s:ExecuteCP(count)
+	let cp_cmd = g:qfenter_cp_cmd
+	execute cp_cmd
 endfunction
 
-function! QFEnter#HOpenQFItem()
-	let lnumqf = line('.')
-	wincmd p
-	new
-	call s:ExecuteCC(lnumqf)
-endfunction
+function! QFEnter#OpenQFItem(wintype, opencmd, isvisual)
+	let qfbufnr = bufnr('%')
+	let qflnum = line('.')
 
-function! QFEnter#TOpenQFItem()
-	let lnumqf = line('.')
-	let qfview = winsaveview()
+	if a:isvisual
+		let vblnum2 = getpos("'>")[1]
+	endif
 
-	let modifier = ''
-	let widthratio = winwidth(0)*&lines
-	let heightratio = winheight(0)*&columns
-	if widthratio > heightratio
-		let modifier = modifier.''
-		let qfresize = 'resize '.winheight(0)
+	call s:OpenQFItem(a:wintype, a:opencmd, qflnum)
+
+	if a:isvisual
+		if qflnum==vblnum2
+			if g:qfenter_keep_quickfixfocus==1
+				let qfwinnr = bufwinnr(qfbufnr)
+				exec qfwinnr.'wincmd w'
+			endif
+		else
+			let qfwinnr = bufwinnr(qfbufnr)
+			exec qfwinnr.'wincmd w'
+		endif
 	else
-		let modifier = modifier.'vert'
-		let qfresize = 'vert resize '.winwidth(0)
+		if g:qfenter_keep_quickfixfocus==1
+			let qfwinnr = bufwinnr(qfbufnr)
+			exec qfwinnr.'wincmd w'
+		endif
+	endif
+endfunction
+
+"wintype: 'open', 'vert', 'horz', 'tab'
+"opencmd: 'cc', 'cn', 'cp'
+function! s:OpenQFItem(wintype, opencmd, qflnum)
+	let lnumqf = a:qflnum
+
+	if a:wintype==#'open'
+		wincmd p
+	elseif a:wintype==#'vert'
+		wincmd p
+		vnew
+	elseif a:wintype==#'horz'
+		wincmd p
+		new
+	elseif a:wintype==#'tab'
+		let qfview = winsaveview()
+
+		let modifier = ''
+		let widthratio = winwidth(0)*&lines
+		let heightratio = winheight(0)*&columns
+		if widthratio > heightratio
+			let modifier = modifier.''
+			let qfresize = 'resize '.winheight(0)
+		else
+			let modifier = modifier.'vert'
+			let qfresize = 'vert resize '.winwidth(0)
+		endif
+
+		if winnr() <= winnr('$')/2
+			let modifier = modifier.' topleft'
+		else
+			let modifier = modifier.' botright'
+		endif
+
+		tabnew
 	endif
 
-	if winnr() <= winnr('$')/2
-		let modifier = modifier.' topleft'
-	else
-		let modifier = modifier.' botright'
+	if a:opencmd==#'cc'
+		call s:ExecuteCC(lnumqf)
+	elseif a:opencmd==#'cn'
+		call s:ExecuteCN(lnumqf)
+	elseif a:opencmd==#'cp'
+		call s:ExecuteCP(lnumqf)
 	endif
 
-	tabnew
-	call s:ExecuteCC(lnumqf)
-
-	if g:qfenter_enable_autoquickfix
-		exec modifier 'copen'
-		exec qfresize
-		call winrestview(qfview)
+	if a:wintype==#'tab'
+		if g:qfenter_enable_autoquickfix
+			exec modifier 'copen'
+			exec qfresize
+			call winrestview(qfview)
+			wincmd p
+		endif
 	endif
-
-	wincmd p
 endfunction
