@@ -4,19 +4,32 @@
 " License:      MIT License
 
 " functions
-function! s:ExecuteCC(lnumqf)
-	let cc_cmd = substitute(g:qfenter_cc_cmd, '##', a:lnumqf, "")
+function! s:ExecuteCC(lnumqf, isloclist)
+	if a:isloclist
+		let cmd = g:qfenter_ll_cmd
+	else
+		let cmd = g:qfenter_cc_cmd
+	endif
+	let cc_cmd = substitute(cmd, '##', a:lnumqf, "")
 	execute cc_cmd
 endfunction
 
 function! s:ExecuteCN(count)
 	let cn_cmd = g:qfenter_cn_cmd
-	execute cn_cmd
+	try
+		execute cn_cmd
+	catch E553
+		echo 'QFEnter: cnext: No more items'
+	endtry
 endfunction
 
 function! s:ExecuteCP(count)
 	let cp_cmd = g:qfenter_cp_cmd
-	execute cp_cmd
+	try
+		execute cp_cmd
+	catch E553
+		echo 'QFEnter: cprev: No more items'
+	endtry
 endfunction
 
 function! QFEnter#OpenQFItem(wintype, opencmd, isvisual)
@@ -54,6 +67,12 @@ endfunction
 function! s:OpenQFItem(wintype, opencmd, qflnum)
 	let lnumqf = a:qflnum
 
+	if len(getloclist(0)) > 0
+		let isloclist = 1
+	else
+		let isloclist = 0
+	endif
+
 	" arrange a window or tab in which quickfix item to be opened
 	if a:wintype==#'open'
 		wincmd p
@@ -86,13 +105,14 @@ function! s:OpenQFItem(wintype, opencmd, qflnum)
 		tabnew
 	endif
 
-	" save current tab or window to check after switchbuf applied when executing cc, cn, cp commands
+	" save current tab or window to check after switchbuf applied when
+	" executing cc, cn, cp commands
 	let before_tabnr = tabpagenr()
 	let before_winnr = winnr()
 
 	" execute vim quickfix open commands
 	if a:opencmd==#'open'
-		call s:ExecuteCC(lnumqf)
+		call s:ExecuteCC(lnumqf, isloclist)
 	elseif a:opencmd==#'cnext'
 		call s:ExecuteCN(lnumqf)
 	elseif a:opencmd==#'cprev'
@@ -100,7 +120,8 @@ function! s:OpenQFItem(wintype, opencmd, qflnum)
 	endif
 
 	" check if switchbuf applied.
-	" if useopen or usetab are applied with new window or tab command, close the newly opened tab or window.
+	" if useopen or usetab are applied with new window or tab command, close
+	" the newly opened tab or window.
 	let after_tabnr = tabpagenr()
 	let after_winnr = winnr()
 	if (match(&switchbuf,'useopen')>-1 || match(&switchbuf,'usetab')>-1)
@@ -163,3 +184,5 @@ endfun
 fun! s:JumpToTab(tabnum)
 	exec 'tabnext' a:tabnum
 endfun
+
+" vim:set noet sw=4 sts=4 ts=4 tw=78:

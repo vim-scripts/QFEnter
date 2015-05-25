@@ -28,6 +28,7 @@ if !exists('g:qfenter_hcprev_map') | let g:qfenter_hcprev_map = [] | endif
 if !exists('g:qfenter_tcprev_map') | let g:qfenter_tcprev_map = [] | endif
 
 if !exists('g:qfenter_cc_cmd') | let g:qfenter_cc_cmd = '##cc' | endif
+if !exists('g:qfenter_ll_cmd') | let g:qfenter_ll_cmd = '##ll' | endif
 if !exists('g:qfenter_cn_cmd') | let g:qfenter_cn_cmd = 'cn'   | endif
 if !exists('g:qfenter_cp_cmd') | let g:qfenter_cp_cmd = 'cp'   | endif
 
@@ -66,11 +67,13 @@ augroup END
 " functions
 function! s:RegisterMapping(keymap, wintype, opencmd)
 	for key in a:keymap
-		execute 'nnoremap <buffer> '.key.' :call QFEnter#OpenQFItem("'.a:wintype.'","'.a:opencmd.'",0)<CR>'
-		execute 'vnoremap <buffer> '.key.' :call QFEnter#OpenQFItem("'.a:wintype.'","'.a:opencmd.'",1)<CR>'
+		execute 'nnoremap <silent> <buffer> '.key.' :call QFEnter#OpenQFItem("'.a:wintype.'","'.a:opencmd.'",0)<CR>'
+		execute 'vnoremap <silent> <buffer> '.key.' :call QFEnter#OpenQFItem("'.a:wintype.'","'.a:opencmd.'",1)<CR>'
 	endfor
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""
 let &cpo= s:keepcpo
 unlet s:keepcpo
+
+" vim:set noet sw=4 sts=4 ts=4 tw=78:
